@@ -1,0 +1,331 @@
+services:
+  zookeeper:
+    image: zookeeper:3.7
+    container_name: zookeeper
+    hostname: zookeeper
+    expose:
+      - 2181
+    volumes:
+      - zookeeper-data:/data
+      - zookeeper-datalog:/datalog
+  kh-0-0:
+    image: clickhouse/clickhouse-server:${CH_VERSION}
+    container_name: kh-0-0
+    hostname: aggregator-0-0
+    volumes:
+      - kh-0-0:/var/lib/clickhouse
+      - type: bind
+        source: ./configs/ch/config-0-0.xml
+        target: /etc/clickhouse-server/config.d/config.xml
+      - type: bind
+        source: ./scripts/cluster-init.sql
+        target: /docker-entrypoint-initdb.d/cluster-init.sql
+    expose:
+      - 8123
+      - 9000
+      - 9363
+    ports:
+      - 9000:9000
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query='SELECT 1'"]
+      interval: 200ms
+      timeout: 1s
+      retries: 1500
+    depends_on:
+      - zookeeper
+  kh-0-1:
+    image: clickhouse/clickhouse-server:${CH_VERSION}
+    container_name: kh-0-1
+    hostname: aggregator-0-1
+    volumes:
+      - kh-0-1:/var/lib/clickhouse
+      - type: bind
+        source: ./configs/ch/config-0-1.xml
+        target: /etc/clickhouse-server/config.d/config.xml
+      - type: bind
+        source: ./scripts/cluster-init.sql
+        target: /docker-entrypoint-initdb.d/cluster-init.sql
+    expose:
+      - 8123
+      - 9000
+      - 9363
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query='SELECT 1'"]
+      interval: 200ms
+      timeout: 1s
+      retries: 1500
+    depends_on:
+      - zookeeper
+  kh-0-2:
+    image: clickhouse/clickhouse-server:${CH_VERSION}
+    container_name: kh-0-2
+    hostname: aggregator-0-2
+    volumes:
+      - kh-0-2:/var/lib/clickhouse
+      - type: bind
+        source: ./configs/ch/config-0-2.xml
+        target: /etc/clickhouse-server/config.d/config.xml
+      - type: bind
+        source: ./scripts/cluster-init.sql
+        target: /docker-entrypoint-initdb.d/cluster-init.sql
+    expose:
+      - 8123
+      - 9000
+      - 9363
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query='SELECT 1'"]
+      interval: 200ms
+      timeout: 1s
+      retries: 1500
+    depends_on:
+      - zookeeper
+  kh-1-0:
+    image: clickhouse/clickhouse-server:${CH_VERSION}
+    container_name: kh-1-0
+    hostname: aggregator-1-0
+    volumes:
+      - kh-1-0:/var/lib/clickhouse
+      - type: bind
+        source: ./configs/ch/config-1-0.xml
+        target: /etc/clickhouse-server/config.d/config.xml
+      - type: bind
+        source: ./scripts/cluster-init.sql
+        target: /docker-entrypoint-initdb.d/cluster-init.sql
+    expose:
+      - 8123
+      - 9000
+      - 9363
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query='SELECT 1'"]
+      interval: 200ms
+      timeout: 1s
+      retries: 1500
+    depends_on:
+      - zookeeper
+  kh-1-1:
+    image: clickhouse/clickhouse-server:${CH_VERSION}
+    container_name: kh-1-1
+    hostname: aggregator-1-1
+    volumes:
+      - kh-1-1:/var/lib/clickhouse
+      - type: bind
+        source: ./configs/ch/config-1-1.xml
+        target: /etc/clickhouse-server/config.d/config.xml
+      - type: bind
+        source: ./scripts/cluster-init.sql
+        target: /docker-entrypoint-initdb.d/cluster-init.sql
+    expose:
+      - 8123
+      - 9000
+      - 9363
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query='SELECT 1'"]
+      interval: 200ms
+      timeout: 1s
+      retries: 1500
+    depends_on:
+      - zookeeper
+  kh-1-2:
+    image: clickhouse/clickhouse-server:${CH_VERSION}
+    container_name: kh-1-2
+    hostname: aggregator-1-2
+    volumes:
+      - kh-1-2:/var/lib/clickhouse
+      - type: bind
+        source: ./configs/ch/config-1-2.xml
+        target: /etc/clickhouse-server/config.d/config.xml
+      - type: bind
+        source: ./scripts/cluster-init.sql
+        target: /docker-entrypoint-initdb.d/cluster-init.sql
+    expose:
+      - 8123
+      - 9000
+      - 9363
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query='SELECT 1'"]
+      interval: 200ms
+      timeout: 1s
+      retries: 1500
+    depends_on:
+      - zookeeper
+
+  aggregator-0-0:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+        - BUILD_COMMIT
+        - BUILD_COMMIT_TS
+        - BUILD_MACHINE
+        - BUILD_TIME
+    user: "root:root"
+    hostname: agg-0-0
+    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-0-0:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    expose:
+      - 13336
+    depends_on:
+      kh-0-0:
+        condition: service_healthy
+  aggregator-0-1:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+        - BUILD_COMMIT
+        - BUILD_COMMIT_TS
+        - BUILD_MACHINE
+        - BUILD_TIME
+    user: "root:root"
+    hostname: agg-0-1
+    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-0-1:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    expose:
+      - 13336
+    depends_on:
+      kh-0-1:
+        condition: service_healthy
+  aggregator-0-2:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+        - BUILD_COMMIT
+        - BUILD_COMMIT_TS
+        - BUILD_MACHINE
+        - BUILD_TIME
+    user: "root:root"
+    hostname: agg-0-2
+    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-0-2:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    expose:
+      - 13336
+    depends_on:
+      kh-0-2:
+        condition: service_healthy
+  aggregator-1-0:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+        - BUILD_COMMIT
+        - BUILD_COMMIT_TS
+        - BUILD_MACHINE
+        - BUILD_TIME
+    user: "root:root"
+    hostname: agg-1-0
+    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-1-0:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    expose:
+      - 13336
+    depends_on:
+      kh-1-0:
+        condition: service_healthy
+  aggregator-1-1:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+        - BUILD_COMMIT
+        - BUILD_COMMIT_TS
+        - BUILD_MACHINE
+        - BUILD_TIME
+    user: "root:root"
+    hostname: agg-1-1
+    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-1-1:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    expose:
+      - 13336
+    depends_on:
+      kh-1-1:
+        condition: service_healthy
+  aggregator-1-2:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+        - BUILD_COMMIT
+        - BUILD_COMMIT_TS
+        - BUILD_MACHINE
+        - BUILD_TIME
+    user: "root:root"
+    hostname: agg-1-2
+    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-1-2:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    expose:
+      - 13336
+    depends_on:
+      kh-1-2:
+        condition: service_healthy
+
+  metadata:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse-metadata.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+    container_name: sh-metadata
+    user: "root:root"
+    command: --statshouse-addr=agent:13337 --db-path=/var/lib/statshouse/metadata/db --binlog-prefix=/var/lib/statshouse/metadata/binlog/bl
+    volumes:
+      - metadata:/var/lib/statshouse/metadata
+    expose:
+      - 2442
+  agent:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+        - BUILD_COMMIT
+        - BUILD_COMMIT_TS
+        - BUILD_MACHINE
+        - BUILD_TIME
+    container_name: sh-agent
+    user: "root:root"
+    command: agent -u=root -g=root --cluster=local_test_cluster --agg-addr='aggregator-0-0:13336,aggregator-0-1:13336,aggregator-0-2:13336' --cache-dir=/var/lib/statshouse/cache/agent --remote-write-enabled
+    expose:
+      - 13337
+      - 13380
+    ports:
+      - "13337:13337/udp"
+      - "13337:13337/tcp"
+  api:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse-api.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+        - BUILD_COMMIT
+        - BUILD_COMMIT_TS
+        - BUILD_MACHINE
+        - BUILD_TIME
+    container_name: sh-api
+    user: "root:root"
+    command: --verbose --insecure-mode --local-mode --access-log --clickhouse-v2-addrs=kh-0-0:9000,kh-0-1:9000,kh-0-2:9000,kh-1-0:9000,kh-1-1:9000,kh-1-2:9000 --listen-addr=:10888 --metadata-addr=metadata:2442 --statshouse-addr=agent:13337 --disk-cache=/var/lib/statshouse/cache/api/mapping_cache.sqlite3
+    ports:
+      - "10888:10888"
+    depends_on:
+      kh-0-0:
+        condition: service_healthy
+      kh-0-1:
+        condition: service_healthy
+      kh-0-2:
+        condition: service_healthy
+      kh-1-0:
+        condition: service_healthy
+      kh-1-1:
+        condition: service_healthy
+      kh-1-2:
+        condition: service_healthy
+
+volumes:
+  kh-0-0:
+  kh-0-1:
+  kh-0-2:
+  kh-1-0:
+  kh-1-1:
+  kh-1-2:
+  metadata:
+  zookeeper-data:
+  zookeeper-datalog:
