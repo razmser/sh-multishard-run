@@ -49,4 +49,15 @@
         <asynchronous_metrics>true</asynchronous_metrics>
         <status_info>true</status_info>
     </prometheus>
+    <storage_configuration>
+        <policies>
+          <ssd_then_hdd>
+            <volumes>
+              <hdd>
+                <disk>default</disk>
+              </hdd>
+            </volumes>
+          </ssd_then_hdd>
+        </policies>
+    </storage_configuration>
 </clickhouse>
