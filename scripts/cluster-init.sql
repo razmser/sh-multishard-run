@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS statshouse_internal_log ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_internal_log ON CLUSTER statlogs2
 (`time` DateTime,
  `host` String,
  `type` String,
@@ -15,7 +15,7 @@ ORDER BY (time, host, type, key0, key1, key2, key3, key4, key5)
 TTL time + toIntervalMonth(3)
 SETTINGS ttl_only_drop_parts = 1, index_granularity = 8192;
 
-CREATE TABLE IF NOT EXISTS statshouse_internal_log_buffer ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_internal_log_buffer ON CLUSTER statlogs2
 (`time` DateTime,
  `host` String,
  `type` String,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS statshouse_internal_log_buffer ON CLUSTER local_test_
  `message` String)
 ENGINE = Buffer('default', 'statshouse_internal_log', 2, 120, 120, 10000000, 10000000, 100000000, 100000000);
 
-CREATE TABLE IF NOT EXISTS statshouse_internal_log_dist ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_internal_log_dist ON CLUSTER statlogs2
 (`time` DateTime,
  `host` String,
  `type` String,
@@ -39,9 +39,9 @@ CREATE TABLE IF NOT EXISTS statshouse_internal_log_dist ON CLUSTER local_test_cl
  `key4` String,
  `key5` String,
  `message` String)
-ENGINE = Distributed('local_test_cluster', 'default', 'statshouse_internal_log');
+ENGINE = Distributed('statlogs2', 'default', 'statshouse_internal_log');
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1h ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1h ON CLUSTER statlogs2
 (`metric` Int32,
  `time` DateTime,
  `key0` Int32,
@@ -76,7 +76,7 @@ ORDER BY (metric, time, key0, key1, key2, key3, key4, key5, key6, key7, key8, ke
 TTL time + toIntervalDay(4) TO DISK 'default'
 SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1;
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1h_dist ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1h_dist ON CLUSTER statlogs2
 (`metric` Int32,
  `time` DateTime,
  `key0` Int32,
@@ -105,9 +105,9 @@ CREATE TABLE IF NOT EXISTS statshouse_value_1h_dist ON CLUSTER local_test_cluste
  `uniq_state` AggregateFunction(uniq, Int64),
  `min_host` AggregateFunction(argMin, Int32, Float32),
  `max_host` AggregateFunction(argMax, Int32, Float32))
-ENGINE = Distributed('local_test_cluster', 'default', 'statshouse_value_1h');
+ENGINE = Distributed('statlogs2', 'default', 'statshouse_value_1h');
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1h_prekey ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1h_prekey ON CLUSTER statlogs2
 (`metric` Int32,
  `prekey` Int32,
  `time` DateTime,
@@ -143,7 +143,7 @@ ORDER BY (metric, prekey, time, key0, key1, key2, key3, key4, key5, key6, key7, 
 TTL time + toIntervalDay(4) TO DISK 'default'
 SETTINGS ttl_only_drop_parts = 1, index_granularity = 8192;
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1h_prekey_dist ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1h_prekey_dist ON CLUSTER statlogs2
 (`metric` Int32,
  `prekey` Int32,
  `time` DateTime,
@@ -173,9 +173,9 @@ CREATE TABLE IF NOT EXISTS statshouse_value_1h_prekey_dist ON CLUSTER local_test
  `uniq_state` AggregateFunction(uniq, Int64),
  `min_host` AggregateFunction(argMin, Int32, Float32),
  `max_host` AggregateFunction(argMax, Int32, Float32))
-ENGINE = Distributed('local_test_cluster', 'default', 'statshouse_value_1h_prekey');
+ENGINE = Distributed('statlogs2', 'default', 'statshouse_value_1h_prekey');
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1m ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1m ON CLUSTER statlogs2
 (`metric` Int32,
  `time` DateTime,
  `key0` Int32,
@@ -211,7 +211,7 @@ TTL time + toIntervalDay(4) TO DISK 'default', time + toIntervalDay(33)
 SETTINGS ttl_only_drop_parts = 1, index_granularity = 8192;
 
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1m_dist ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1m_dist ON CLUSTER statlogs2
 (`metric` Int32,
  `time` DateTime,
  `key0` Int32,
@@ -240,9 +240,9 @@ CREATE TABLE IF NOT EXISTS statshouse_value_1m_dist ON CLUSTER local_test_cluste
  `uniq_state` AggregateFunction(uniq, Int64),
  `min_host` AggregateFunction(argMin, Int32, Float32),
  `max_host` AggregateFunction(argMax, Int32, Float32))
-ENGINE = Distributed('local_test_cluster', 'default', 'statshouse_value_1m');
+ENGINE = Distributed('statlogs2', 'default', 'statshouse_value_1m');
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1m_prekey ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1m_prekey ON CLUSTER statlogs2
 (`metric` Int32,
  `prekey` Int32,
  `time` DateTime,
@@ -278,7 +278,7 @@ ORDER BY (metric, prekey, time, key0, key1, key2, key3, key4, key5, key6, key7, 
 TTL time + toIntervalDay(4) TO DISK 'default', time + toIntervalDay(33)
 SETTINGS ttl_only_drop_parts = 1, index_granularity = 8192;
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1m_prekey_dist ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1m_prekey_dist ON CLUSTER statlogs2
 (`metric` Int32,
  `prekey` Int32,
  `time` DateTime,
@@ -308,9 +308,9 @@ CREATE TABLE IF NOT EXISTS statshouse_value_1m_prekey_dist ON CLUSTER local_test
  `uniq_state` AggregateFunction(uniq, Int64),
  `min_host` AggregateFunction(argMin, Int32, Float32),
  `max_host` AggregateFunction(argMax, Int32, Float32))
-ENGINE = Distributed('local_test_cluster', 'default', 'statshouse_value_1m_prekey');
+ENGINE = Distributed('statlogs2', 'default', 'statshouse_value_1m_prekey');
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1s ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1s ON CLUSTER statlogs2
 (`metric` Int32,
  `time` DateTime,
  `key0` Int32,
@@ -346,7 +346,7 @@ TTL time + toIntervalHour(52)
 SETTINGS ttl_only_drop_parts = 1, index_granularity = 8192, max_bytes_to_merge_at_max_space_in_pool = 16106127360;
 
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1s_dist ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1s_dist ON CLUSTER statlogs2
 (`metric` Int32,
  `time` DateTime,
  `key0` Int32,
@@ -375,9 +375,9 @@ CREATE TABLE IF NOT EXISTS statshouse_value_1s_dist ON CLUSTER local_test_cluste
  `uniq_state` AggregateFunction(uniq, Int64),
  `min_host` AggregateFunction(argMin, Int32, Float32),
  `max_host` AggregateFunction(argMax, Int32, Float32))
-ENGINE = Distributed('local_test_cluster', 'default', 'statshouse_value_1s');
+ENGINE = Distributed('statlogs2', 'default', 'statshouse_value_1s');
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1s_prekey ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1s_prekey ON CLUSTER statlogs2
 (`metric` Int32,
  `prekey` Int32,
  `time` DateTime,
@@ -413,7 +413,7 @@ ORDER BY (metric, prekey, time, key0, key1, key2, key3, key4, key5, key6, key7, 
 TTL time + toIntervalHour(52)
 SETTINGS ttl_only_drop_parts = 1, max_bytes_to_merge_at_max_space_in_pool = 16106127360, index_granularity = 8192;
 
-CREATE TABLE IF NOT EXISTS statshouse_value_1s_prekey_dist ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_1s_prekey_dist ON CLUSTER statlogs2
 (`metric` Int32,
  `prekey` Int32,
  `time` DateTime,
@@ -443,10 +443,10 @@ CREATE TABLE IF NOT EXISTS statshouse_value_1s_prekey_dist ON CLUSTER local_test
  `uniq_state` AggregateFunction(uniq, Int64),
  `min_host` AggregateFunction(argMin, Int32, Float32),
  `max_host` AggregateFunction(argMax, Int32, Float32))
-ENGINE = Distributed('local_test_cluster', 'default', 'statshouse_value_1s_prekey');
+ENGINE = Distributed('statlogs2', 'default', 'statshouse_value_1s_prekey');
 
 
-CREATE TABLE IF NOT EXISTS statshouse_value_incoming_prekey3 ON CLUSTER local_test_cluster
+CREATE TABLE IF NOT EXISTS statshouse_value_incoming_prekey3 ON CLUSTER statlogs2
 (
     `metric` Int32,
     `prekey` Int32,
@@ -482,7 +482,7 @@ CREATE TABLE IF NOT EXISTS statshouse_value_incoming_prekey3 ON CLUSTER local_te
     ENGINE = Null;
 
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1h_agg3 ON CLUSTER local_test_cluster TO statshouse_value_1h
+CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1h_agg3 ON CLUSTER statlogs2 TO statshouse_value_1h
 (
     `metric` Int32,
     `time` DateTime,
@@ -546,7 +546,7 @@ FROM statshouse_value_incoming_prekey3
 WHERE (toDate(time) >= (today() - 3)) AND (toDate(time) <= (today() + 1)) AND (prekey_set <> 2);
 
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1h_agg_prekey3 ON CLUSTER local_test_cluster TO statshouse_value_1h_prekey
+CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1h_agg_prekey3 ON CLUSTER statlogs2 TO statshouse_value_1h_prekey
 (
     `metric` Int32,
     `prekey` Int32,
@@ -613,7 +613,7 @@ SELECT
 FROM statshouse_value_incoming_prekey3
 WHERE (toDate(time) >= (today() - 3)) AND (toDate(time) <= (today() + 1)) AND (prekey_set > 0);
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1m_agg3 ON CLUSTER local_test_cluster TO statshouse_value_1m
+CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1m_agg3 ON CLUSTER statlogs2 TO statshouse_value_1m
 (
     `metric` Int32,
     `time` DateTime,
@@ -677,7 +677,7 @@ FROM statshouse_value_incoming_prekey3
 WHERE (toDate(time) >= (today() - 3)) AND (toDate(time) <= (today() + 1)) AND (prekey_set <> 2);
 
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1m_agg_prekey3 ON CLUSTER local_test_cluster TO statshouse_value_1m_prekey
+CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1m_agg_prekey3 ON CLUSTER statlogs2 TO statshouse_value_1m_prekey
 (
     `metric` Int32,
     `prekey` Int32,
@@ -745,7 +745,7 @@ FROM statshouse_value_incoming_prekey3
 WHERE (toDate(time) >= (today() - 3)) AND (toDate(time) <= (today() + 1)) AND (prekey_set > 0);
 
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1s_agg3 ON CLUSTER local_test_cluster TO statshouse_value_1s
+CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1s_agg3 ON CLUSTER statlogs2 TO statshouse_value_1s
 (
     `metric` Int32,
     `time` DateTime,
@@ -809,7 +809,7 @@ FROM statshouse_value_incoming_prekey3
 WHERE (toDate(time) >= (today() - 3)) AND (toDate(time) <= (today() + 1)) AND (prekey_set <> 2);
 
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1s_agg_prekey3 ON CLUSTER local_test_cluster TO statshouse_value_1s_prekey
+CREATE MATERIALIZED VIEW IF NOT EXISTS statshouse_value_1s_agg_prekey3 ON CLUSTER statlogs2 TO statshouse_value_1s_prekey
 (
     `metric` Int32,
     `prekey` Int32,

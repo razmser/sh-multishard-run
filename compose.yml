@@ -161,7 +161,7 @@ services:
         - BUILD_TIME
     user: "root:root"
     hostname: agg-0-0
-    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-0-0:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    command: aggregator -u=root -g=root --cluster=statlogs2 --agg-addr=':13336' --kh=kh-0-0:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
     expose:
       - 13336
     depends_on:
@@ -179,7 +179,7 @@ services:
         - BUILD_TIME
     user: "root:root"
     hostname: agg-0-1
-    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-0-1:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    command: aggregator -u=root -g=root --cluster=statlogs2 --agg-addr=':13336' --kh=kh-0-1:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
     expose:
       - 13336
     depends_on:
@@ -197,7 +197,7 @@ services:
         - BUILD_TIME
     user: "root:root"
     hostname: agg-0-2
-    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-0-2:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    command: aggregator -u=root -g=root --cluster=statlogs2 --agg-addr=':13336' --kh=kh-0-2:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
     expose:
       - 13336
     depends_on:
@@ -215,7 +215,7 @@ services:
         - BUILD_TIME
     user: "root:root"
     hostname: agg-1-0
-    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-1-0:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    command: aggregator -u=root -g=root --cluster=statlogs2 --agg-addr=':13336' --kh=kh-1-0:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
     expose:
       - 13336
     depends_on:
@@ -233,7 +233,7 @@ services:
         - BUILD_TIME
     user: "root:root"
     hostname: agg-1-1
-    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-1-1:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    command: aggregator -u=root -g=root --cluster=statlogs2 --agg-addr=':13336' --kh=kh-1-1:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
     expose:
       - 13336
     depends_on:
@@ -251,7 +251,7 @@ services:
         - BUILD_TIME
     user: "root:root"
     hostname: agg-1-2
-    command: aggregator -u=root -g=root --cluster=local_test_cluster --agg-addr=':13336' --kh=kh-1-2:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    command: aggregator -u=root -g=root --cluster=statlogs2 --agg-addr=':13336' --kh=kh-1-2:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
     expose:
       - 13336
     depends_on:
@@ -283,7 +283,7 @@ services:
         - BUILD_TIME
     container_name: sh-agent
     user: "root:root"
-    command: agent -u=root -g=root --cluster=local_test_cluster --agg-addr='aggregator-0-0:13336,aggregator-0-1:13336,aggregator-0-2:13336' --cache-dir=/var/lib/statshouse/cache/agent --remote-write-enabled
+    command: agent -u=root -g=root --cluster=statlogs2 --agg-addr='aggregator-0-0:13336,aggregator-0-1:13336,aggregator-0-2:13336' --cache-dir=/var/lib/statshouse/cache/agent --remote-write-enabled
     expose:
       - 13337
       - 13380

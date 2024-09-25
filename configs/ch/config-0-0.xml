@@ -1,6 +1,6 @@
 <clickhouse>
     <remote_servers>
-        <local_test_cluster>
+        <statlogs2>
             <shard>
                 <replica>
                     <host>aggregator-0-0</host>
@@ -29,7 +29,7 @@
                     <port>9000</port>
                 </replica>
             </shard>
-        </local_test_cluster>
+        </statlogs2>
     </remote_servers>
     <zookeeper>
         <node index="1">
