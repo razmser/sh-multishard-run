@@ -66,6 +66,8 @@ services:
       - metadata:/var/lib/statshouse/metadata
     expose:
       - 2442
+    ports:
+      - 2442:2442
   agent:
     build:
       context: ${SH_DIR}
