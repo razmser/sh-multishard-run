@@ -33,6 +33,31 @@ services:
       retries: 1500
     depends_on:
       - zookeeper
+  kh-staging:
+    image: clickhouse/clickhouse-server:${CH_VERSION}
+    container_name: kh-staging
+    hostname: aggregator-staging
+    volumes:
+      - kh-staging:/var/lib/clickhouse
+      - type: bind
+        source: ./configs/ch/config-staging.xml
+        target: /etc/clickhouse-server/config.d/config.xml
+      - type: bind
+        source: ./scripts/cluster-init-staging.sql
+        target: /docker-entrypoint-initdb.d/cluster-init.sql
+    expose:
+      - 8123
+      - 9000
+      - 9363
+    ports:
+      - 9004:9000
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query='SELECT 1'"]
+      interval: 200ms
+      timeout: 1s
+      retries: 1500
+    depends_on:
+      - zookeeper
 
   aggregator:
     build:
@@ -51,6 +76,24 @@ services:
       - 13336
     depends_on:
       kh:
+        condition: service_healthy
+  aggregator-staging:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+        - BUILD_COMMIT
+        - BUILD_COMMIT_TS
+        - BUILD_MACHINE
+        - BUILD_TIME
+    user: "root:root"
+    hostname: agg-staging
+    command: aggregator -u=root -g=root --cluster=staging --agg-addr=':13336' --kh=kh-staging:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    expose:
+      - 13336
+    depends_on:
+      kh-staging:
         condition: service_healthy
 
   metadata:
@@ -80,13 +123,29 @@ services:
         - BUILD_TIME
     container_name: sh-agent
     user: "root:root"
-    command: agent -u=root -g=root --cluster=statlogs2 --agg-addr='aggregator:13336,aggregator:13336,aggregator:13336' --cache-dir=/var/lib/statshouse/cache/agent --remote-write-enabled
+    command: agent -u=root -g=root --cluster=statlogs2 --agg-addr='aggregator:13336,aggregator:13336,aggregator:13336' --cache-dir=/var/lib/statshouse/cache/agent --remote-write-enabled --mirror-udp=agent-staging:13337
     expose:
       - 13337
       - 13380
     ports:
       - "13337:13337/udp"
       - "13337:13337/tcp"
+  agent-staging:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+        - BUILD_COMMIT
+        - BUILD_COMMIT_TS
+        - BUILD_MACHINE
+        - BUILD_TIME
+    container_name: sh-agent-staging
+    user: "root:root"
+    command: agent -u=root -g=root --cluster=staging --agg-addr='aggregator-staging:13336,aggregator-staging:13336,aggregator-staging:13336' --cache-dir=/var/lib/statshouse/cache/agent --remote-write-enabled
+    expose:
+      - 13337
+      - 13380
   api:
     build:
       context: ${SH_DIR}
@@ -99,15 +158,34 @@ services:
         - BUILD_TIME
     container_name: sh-api
     user: "root:root"
-    command: --verbose --insecure-mode --local-mode --access-log --clickhouse-v2-addrs=kh:9000 --listen-addr=:10888 --metadata-addr=metadata:2442 --statshouse-addr=agent:13337 --disk-cache=/var/lib/statshouse/cache/api/mapping_cache.sqlite3
+    command: --verbose --insecure-mode --local-mode --access-log --clickhouse-v2-addrs=aggregator:9000 --listen-addr=:10888 --metadata-addr=metadata:2442 --statshouse-addr=agent:13337 --disk-cache=/var/lib/statshouse/cache/api/mapping_cache.sqlite3
     ports:
       - "10888:10888"
     depends_on:
       kh:
         condition: service_healthy
+  api-staging:
+    build:
+      context: ${SH_DIR}
+      dockerfile: build/statshouse-api.Dockerfile
+      args:
+        - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
+        - BUILD_COMMIT
+        - BUILD_COMMIT_TS
+        - BUILD_MACHINE
+        - BUILD_TIME
+    container_name: sh-api-staging
+    user: "root:root"
+    command: --verbose --insecure-mode --local-mode --access-log --clickhouse-v2-addrs=aggregator-staging:9000 --listen-addr=:10888 --metadata-addr=metadata:2442 --statshouse-addr=agent-staging:13337 --disk-cache=/var/lib/statshouse/cache/api/mapping_cache.sqlite3
+    ports:
+      - "10890:10888"
+    depends_on:
+      kh-staging:
+        condition: service_healthy
 
 volumes:
   kh:
+  kh-staging:
   metadata:
   zookeeper-data:
   zookeeper-datalog:
