@@ -11,7 +11,7 @@ services:
   kh:
     image: clickhouse/clickhouse-server:${CH_VERSION}
     container_name: kh
-    hostname: aggregator
+    hostname: agg
     volumes:
       - kh:/var/lib/clickhouse
       - type: bind
@@ -34,7 +34,7 @@ services:
     depends_on:
       - zookeeper
 
-  aggregator:
+  agg:
     build:
       context: ${SH_DIR}
       dockerfile: build/statshouse.Dockerfile
@@ -80,7 +80,7 @@ services:
         - BUILD_TIME
     container_name: sh-agent
     user: "root:root"
-    command: agent -u=root -g=root --cluster=statlogs2 --agg-addr='aggregator:13336,aggregator:13336,aggregator:13336' --cache-dir=/var/lib/statshouse/cache/agent --remote-write-enabled
+    command: agent -u=root -g=root --cluster=statlogs2 --agg-addr='agg:13336,agg:13336,agg:13336' --cache-dir=/var/lib/statshouse/cache/agent --remote-write-enabled
     expose:
       - 13337
       - 13380
