@@ -90,6 +90,11 @@ services:
     expose:
       - 13337
       - 13380
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
   agent-base:
     build:
       context: ${SH_BASE_DIR}
@@ -104,6 +109,7 @@ services:
     hostname: base
     user: "root:root"
     command: agent -u=root -g=root --pprof=0.0.0.0:11121 --statshouse-env=staging1 --cluster=statlogs2 --agg-addr='agg:13336,agg:13336,agg:13336' --cache-dir=/var/lib/statshouse/cache/agent --remote-write-enabled --auto-create=false
+    # command: agent -u=root -g=root --pprof=0.0.0.0:11121 --statshouse-env=staging1 --cluster=statlogs2 --agg-addr='agg:13336,agg:13336,agg:13336' --remote-write-enabled --auto-create=false
     volumes:
       - type: bind
         source: ./configs/sh-agent/base_env.yml
@@ -115,6 +121,11 @@ services:
       - "13338:13337/udp"
       - "13338:13337/tcp"
       - "11121:11121"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
   agent-exp:
     build:
       context: ${SH_DIR}
@@ -129,6 +140,7 @@ services:
     hostname: exp
     user: "root:root"
     command: agent -u=root -g=root --pprof=0.0.0.0:11122 --statshouse-env=staging2 --cluster=statlogs2 --agg-addr='agg:13336,agg:13336,agg:13336' --cache-dir=/var/lib/statshouse/cache/agent --remote-write-enabled --auto-create=false
+    # command: agent -u=root -g=root --pprof=0.0.0.0:11122 --statshouse-env=staging2 --cluster=statlogs2 --agg-addr='agg:13336,agg:13336,agg:13336' --remote-write-enabled --auto-create=false
     volumes:
       - type: bind
         source: ./configs/sh-agent/exp_env.yml
@@ -140,6 +152,11 @@ services:
       - "13339:13337/udp"
       - "13339:13337/tcp"
       - "11122:11122"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
   api:
     build:
       context: ${SH_DIR}
