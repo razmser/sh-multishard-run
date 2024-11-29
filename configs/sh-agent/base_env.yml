@@ -1,0 +1,5 @@
+hostname: base-agent
+owner: projects/statshouse-base
+dc: docker-compose
+group: docker
+
