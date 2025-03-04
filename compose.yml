@@ -152,7 +152,7 @@ services:
   aggregator-0-0:
     build:
       context: ${SH_DIR}
-      dockerfile: build/statshouse.Dockerfile
+      dockerfile: build/statshouse-agg.Dockerfile
       args:
         - BUILD_TRUSTED_SUBNET_GROUPS=0.0.0.0/0
         - BUILD_COMMIT
@@ -161,7 +161,7 @@ services:
         - BUILD_TIME
     user: "root:root"
     hostname: agg-0-0
-    command: aggregator -u=root -g=root --cluster=statlogs2 --agg-addr=':13336' --kh=kh-0-0:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
+    command: -u=root -g=root --cluster=statlogs2 --agg-addr=':13336' --kh=kh-0-0:8123 --metadata-addr=metadata:2442 --auto-create --auto-create-default-namespace --cache-dir=/var/lib/statshouse/cache/aggregator
     expose:
       - 13336
     depends_on:
